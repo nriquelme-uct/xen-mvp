@@ -1,9 +1,9 @@
 import '../styles/footer.css'
 
-function Footer() {
+function FooterHome() {
     return (  
         <h1>Hola soy un footer</h1>
     );
 }
 
-export default Footer;
+export default FooterHome;
