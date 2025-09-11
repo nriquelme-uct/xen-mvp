@@ -1,28 +1,102 @@
-import { Container, Button } from "react-bootstrap";
-import Form from 'react-bootstrap/Form'
-function Register() {
-    return (  
+import { Container, Button, Alert } from "react-bootstrap";
+import Form from 'react-bootstrap/Form';
+import { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
+function Register() {
+    const [formData, setFormData] = useState({
+        username: '',
+        password: '',
+        confirmPassword: ''
+    });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const { register } = useAuth();
+    const navigate = useNavigate();
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+
+        if (formData.password !== formData.confirmPassword) {
+            setError('Las contraseñas no coinciden');
+            return;
+        }
+
+        if (formData.password.length < 6) {
+            setError('La contraseña debe tener al menos 6 caracteres');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const result = await register(formData.username, formData.password);
+            if (result.success) {
+                navigate('/');
+            } else {
+                setError(result.error);
+            }
+        } catch (err) {
+            setError('Error inesperado. Inténtalo de nuevo.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (  
         <Container className="d-flex align-items-center justify-content-center p-4 text-dark">
             <div className="w-75 p-4 shadow rounded bg-white">
-                <h2>Ingrese sus datos</h2>
-                <Form>
+                <h2>Registrarse</h2>
+                {error && <Alert variant="danger">{error}</Alert>}
+                <Form onSubmit={handleSubmit}>
                     <Form.Group className='py-4'>
-                        <Form.Label>Nombre</Form.Label>
-                        <Form.Control type="text" placeholder="Name..."/>
-                        <Form.Label>Email</Form.Label>
-                        <Form.Control type="email" placeholder="email@mail.com"/>
+                        <Form.Label>Username</Form.Label>
+                        <Form.Control 
+                            type="text" 
+                            name="username"
+                            placeholder="Username..."
+                            value={formData.username}
+                            onChange={handleChange}
+                            required
+                        />
                         <Form.Label>Password</Form.Label>
-                        <Form.Control type="password" placeholder="Password..."/>
+                        <Form.Control 
+                            type="password" 
+                            name="password"
+                            placeholder="Password..."
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                        />
                         <Form.Label>Confirm Password</Form.Label>
-                        <Form.Control type="password" placeholder="Confirm the password..."/>
+                        <Form.Control 
+                            type="password" 
+                            name="confirmPassword"
+                            placeholder="Confirm the password..."
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            required
+                        />
                     </Form.Group>
-                    <Button className="bg-dark">Registrar</Button>
+                    <Button 
+                        className="bg-dark" 
+                        type="submit"
+                        disabled={loading}
+                    >
+                        {loading ? 'Registrando...' : 'Registrar'}
+                    </Button>
                 </Form>
             </div>
-            
         </Container>
-
     );
 }
 
