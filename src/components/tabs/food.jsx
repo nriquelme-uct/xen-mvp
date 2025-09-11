@@ -1,9 +1,10 @@
-function Food() {
-    return ( 
+import FoodTable from "./intermediateTabs/foodTable";
+const Food = () => {
+    return (  
         <div>
-            <h1>Hola, soy una comida</h1>
+            <FoodTable/>
         </div>
-     );
-}
+    );
+};
 
 export default Food;
